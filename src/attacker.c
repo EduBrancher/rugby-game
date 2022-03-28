@@ -94,10 +94,10 @@ direction_t execute_attacker_strategy(
   double wander = random_number(1);
 
   if (wander < wandering_chance && wandering_steps == 0){
-      printf("Attacker wandering\n");
+      //printf("Attacker wandering\n");
       wandering_steps = 3;
       wandering_dir = dirs[random_integer(8)];
-      printf("wandering dir: { %d %d }\n", dirs->i, dirs->j);
+      //printf("wandering dir: { %d %d }\n", dirs->i, dirs->j);
   }
 
   //process wander
