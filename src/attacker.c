@@ -1,10 +1,13 @@
 // Standard headers
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
 
 // Internal headers
 #include "direction.h"
 #include "position.h"
+#include "defender.h" //hack pra incluir as funcoes auxiliares
 #include "spy.h"
 
 // Main header
@@ -13,30 +16,6 @@
 // Macros
 #define UNUSED(x) (void)(x) // Auxiliary to avoid error of unused parameter
 
-
-// limit is a double between 0 and 1 that determines the maximum value of the random
-// numbers generated. For instance, if it is 0.5, this generates a number between 0 
-// and 0.5.
-
-// OBS: Essa funcao nao deveria estar repetida aqui, deveria estar em um modulo util.h
-// que agruparia funcoes genericamente uteis para varios propositos
-// OU um modulo player.h que seria um objeto generico do qual attacker e defender herdam
-double random_number(double limit){
-    limit = abs(limit);
-    srand(time(0));
-    return (double) rand() / ((double) RAND_MAX * (double)(1 / limit));
-}
-
-//returns integer between 0 and limit - 1.
-int random_integer(int limit){
-    limit = abs(limit);
-    return (int) randomNumber(1) * limit;
-    
-}
-
-bool equal_directions(direction_t a, direction_t b){
-    return (a.i == b.i && a.j == b.j);
-}
 
 /*----------------------------------------------------------------------------*/
 /*                              PUBLIC FUNCTIONS                              */
@@ -62,12 +41,15 @@ direction_t execute_attacker_strategy(
       wandering_chance = 0.2;
   }
   rounds++;
+  //printf("random integer: %d \n", random_integer(8));
+  //printf("random number: %lf \n", random_number(1));
 
   //check if we are stuck, and unstuck
   if (equal_positions(attacker_position, previous_position)){
       if (equal_directions(dirs[escape_index], previous_direction)){
           escape_index++;
           previous_direction = dirs[escape_index];
+          previous_position = attacker_position;
           return dirs[escape_index];
       }
   }
@@ -78,6 +60,8 @@ direction_t execute_attacker_strategy(
   }
   
   if (spy){
+      spy_used = true;
+      spy = false;
       position_t defender_position = get_spy_position(defender_spy);
       int vertical_distance = attacker_position.i - defender_position.i;
       int horizontal_distance = attacker_position.j - defender_position.j;
@@ -112,17 +96,20 @@ direction_t execute_attacker_strategy(
   if (wander < wandering_chance && wandering_steps == 0){
       printf("Attacker wandering\n");
       wandering_steps = 3;
-      wandering_dir = (direction_t) dirs[random_integer(8)];
+      wandering_dir = dirs[random_integer(8)];
+      printf("wandering dir: { %d %d }\n", dirs->i, dirs->j);
   }
 
   //process wander
   if (wandering_steps > 0){
       wandering_steps--;
       previous_direction = wandering_dir;
+      previous_position = attacker_position;
       return wandering_dir;
   }
   // TODO: Implement Attacker logic here
   previous_direction = (direction_t) DIR_RIGHT;
+  previous_position = attacker_position;
   return (direction_t) DIR_RIGHT; 
 }
 
