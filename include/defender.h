@@ -14,5 +14,10 @@
  */
 direction_t execute_defender_strategy(position_t defender_position,
                                       Spy attacker_spy);
+                                      
+
+double random_number(double limit);
+int random_integer(int limit);
+bool equal_directions(direction_t a, direction_t b);
 
 #endif // DEFENDER_H
